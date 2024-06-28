@@ -15,14 +15,6 @@ const julepClient = new julep.Client({ apiKey });
 
 client.commands = new Collection();
 
-const commandFiles = fs
-  .readdirSync("./commands")
-  .filter((file) => file.endsWith(".js"));
-for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  client.commands.set(command.name, command);
-}
-
 const token = process.env.BOT_KEY;
 
 client.once("ready", () => {
@@ -35,7 +27,6 @@ client.on("messageCreate", async (message) => {
   }
   await message.channel.sendTyping();
   const args = message.content.slice(1).split(/ +/);
-  const commandName = args.shift().toLowerCase();
   const user = await julepClient.users.create({
     name: message.author.globalName,
     about: "A test user",
