@@ -33,6 +33,7 @@ client.on("messageCreate", async (message) => {
   if (message.author.bot) {
     return;
   }
+  await message.channel.sendTyping();
   const args = message.content.slice(1).split(/ +/);
   const commandName = args.shift().toLowerCase();
   const user = await julepClient.users.create({
@@ -61,10 +62,16 @@ client.on("messageCreate", async (message) => {
         content: message.content,
       },
     ],
+    max_tokens: 1000,
   };
   const chatResponse = await julepClient.sessions.chat(session.id, chatParams);
   const responseMessage = chatResponse.response[0][0].content;
-  message.channel.send(responseMessage);
+  const chunks = responseMessage.match(/[\s\S]{1,2000}/g);
+
+  // Send each chunk as a separate message
+  for (const chunk of chunks) {
+    await message.channel.send(chunk);
+  }
 });
 
 client.login(token);
